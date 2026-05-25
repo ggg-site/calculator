@@ -759,6 +759,10 @@ function calculate() {
 
     let expr = equation
 
+    /* =========================
+       FACTORIAL
+    ========================= */
+
     while (
       /(\([^()]+\)|\d+)!/.test(expr)
     ) {
@@ -781,9 +785,17 @@ function calculate() {
 
     }
 
+    /* =========================
+       CONSTANTS
+    ========================= */
+
     expr = expr
       .replace(/π/g, "Math.PI")
       .replace(/\be\b/g, "Math.E")
+
+    /* =========================
+       FUNCTIONS
+    ========================= */
 
     expr = expr
       .replace(/sqrt\(/g,
@@ -808,6 +820,134 @@ function calculate() {
         `Math.tan((${x})*Math.PI/180)`
       )
 
+    /* =========================
+       IPHONE STYLE %
+    ========================= */
+
+    /* 200+10% = 220 */
+
+    expr = expr.replace(
+
+      /(\d+(\.\d+)?)\+(\d+(\.\d+)?)%/g,
+
+      (m, a, _, b) => {
+
+        return Number(a) +
+          (
+            Number(a) *
+            Number(b) / 100
+          )
+
+      }
+
+    )
+
+    /* 200-10% = 180 */
+
+    expr = expr.replace(
+
+      /(\d+(\.\d+)?)-(\d+(\.\d+)?)%/g,
+
+      (m, a, _, b) => {
+
+        return Number(a) -
+          (
+            Number(a) *
+            Number(b) / 100
+          )
+
+      }
+
+    )
+
+    /* 200*10% = 20 */
+
+    expr = expr.replace(
+
+      /(\d+(\.\d+)?)\*(\d+(\.\d+)?)%/g,
+
+      (m, a, _, b) => {
+
+        return Number(a) *
+          (
+            Number(b) / 100
+          )
+
+      }
+
+    )
+
+    /* 200/10% = 2000 */
+
+    expr = expr.replace(
+
+      /(\d+(\.\d+)?)\/(\d+(\.\d+)?)%/g,
+
+      (m, a, _, b) => {
+
+        return Number(a) /
+          (
+            Number(b) / 100
+          )
+
+      }
+
+    )
+
+    /* (5+5)% = 0.1 */
+
+    expr = expr.replace(
+
+      /\(([^()]+)\)%/g,
+
+      (m, inside) => {
+
+        return `((${inside})/100)`
+
+      }
+
+    )
+
+    /* 200+(5+5)% = 220 */
+
+    expr = expr.replace(
+
+      /(\d+(\.\d+)?)\+\(\(([^()]+)\)\/100\)/g,
+
+      (m, a, _, inside) => {
+
+        return Number(a) +
+          (
+            Number(a) *
+            eval(inside) / 100
+          )
+
+      }
+
+    )
+
+    /* 200-(5+5)% = 180 */
+
+    expr = expr.replace(
+
+      /(\d+(\.\d+)?)-\(\(([^()]+)\)\/100\)/g,
+
+      (m, a, _, inside) => {
+
+        return Number(a) -
+          (
+            Number(a) *
+            eval(inside) / 100
+          )
+
+      }
+
+    )
+
+    /* =========================
+       FINAL EVAL
+    ========================= */
+
     let result =
       eval(expr)
 
@@ -823,25 +963,6 @@ function calculate() {
     updateDisplay("Error")
 
   }
-
-}
-
-async function loadRates() {
-
-  let response =
-    await fetch(
-      "https://open.er-api.com/v6/latest/USD"
-    )
-
-  let data =
-    await response.json()
-
-  rates =
-    data.rates
-
-  buildMenus()
-
-  convert()
 
 }
 
