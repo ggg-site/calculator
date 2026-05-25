@@ -185,12 +185,71 @@ function negative() {
 }
 
 function percent() {
+
   try {
-    equation = (eval(equation) / 100).toString()
-    updateDisplay(equation)
-  } catch {
-    updateDisplay("Error")
+
+    if (equation.includes("+")) {
+
+      let parts = equation.split("+")
+
+      let first = Number(parts[0])
+      let second = Number(parts[1])
+
+      equation = first + (first * second / 100)
+
+    }
+
+    else if (equation.includes("-")) {
+
+      let parts = equation.split("-")
+
+      let first = Number(parts[0])
+      let second = Number(parts[1])
+
+      equation = first - (first * second / 100)
+
+    }
+
+    else if (equation.includes("*")) {
+
+      let parts = equation.split("*")
+
+      let first = Number(parts[0])
+      let second = Number(parts[1])
+
+      equation = first * (second / 100)
+
+    }
+
+    else if (equation.includes("/")) {
+
+      let parts = equation.split("/")
+
+      let first = Number(parts[0])
+      let second = Number(parts[1])
+
+      equation = first / (second / 100)
+
+    }
+
+    else {
+
+      equation = Number(equation) / 100
+
+    }
+
+    equation = equation.toString()
+
+    document.getElementById("result").innerHTML = equation
+
   }
+
+  catch {
+
+    document.getElementById("result").innerHTML = "Error"
+
+  }
+
 }
 
 </script>
