@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+<style>
+
+body {
+  margin: 0;
+  background: black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  font-family: Arial;
+}
+
+.calculator {
+  width: 390px;
+}
+
+#result {
+  color: white;
+  font-size: 45px;
+  text-align: right;
+  padding: 20px;
+  margin-top: 120px;
+  margin-bottom: 20px;
+  min-height: 80px;
+  overflow-x: auto;
+  white-space: nowrap;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+
+button {
+  height: 65px;
+  border: none;
+  border-radius: 50%;
+  font-size: 20px;
+  color: white;
+  background: #333333;
+}
+
+.gray {
+  background: #a5a5a5;
+  color: black;
+}
+
+.orange {
+  background: #ff9f0a;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="calculator">
+
+<div id="result">0</div>
+
+<div class="grid">
+
+<button class="gray" onclick="clearCalc()">AC</button>
+<button class="gray" onclick="negative()">+/-</button>
+<button class="gray" onclick="percent()">%</button>
+<button class="orange" onclick="add('/')">÷</button>
+<button class="orange" onclick="backspace()">⌫</button>
+
+<button onclick="addFunc('sin')">sin</button>
+<button onclick="addFunc('cos')">cos</button>
+<button onclick="addFunc('tan')">tan</button>
+<button onclick="addFunc('sqrt')">√</button>
+<button onclick="add('**')">xʸ</button>
+
+<button onclick="addFunc('log10')">log</button>
+<button onclick="addFunc('log')">ln</button>
+<button onclick="add('π')">π</button>
+<button onclick="add('e')">e</button>
+<button onclick="add('!')">x!</button>
+
+<button onclick="add('7')">7</button>
+<button onclick="add('8')">8</button>
+<button onclick="add('9')">9</button>
+<button class="orange" onclick="add('*')">×</button>
+<button onclick="add('(')">(</button>
+
+<button onclick="add('4')">4</button>
+<button onclick="add('5')">5</button>
+<button onclick="add('6')">6</button>
+<button class="orange" onclick="add('-')">−</button>
+<button onclick="add(')')">)</button>
+
+<button onclick="add('1')">1</button>
+<button onclick="add('2')">2</button>
+<button onclick="add('3')">3</button>
+<button class="orange" onclick="add('+')">+</button>
+<button onclick="add('.')">.</button>
+
+<button onclick="add('0')">0</button>
+<button onclick="add('00')">00</button>
+<button onclick="add('1e+')">EXP</button>
+<button class="orange" onclick="calculate()">=</button>
+
+</div>
+
+</div>
+
+<script>
+
+let equation = ""
+
+function updateDisplay(v) {
+  document.getElementById("result").innerHTML = v
+}
+
+function add(v) {
+  equation += v
+  updateDisplay(equation)
+}
+
+function addFunc(f) {
+  equation += f + "("
+  updateDisplay(equation)
+}
+
+function factorial(n) {
+  if (n <= 1) return 1
+  let r = 1
+  for (let i = 2; i <= n; i++) r *= i
+  return r
+}
+
+function calculate() {
+  try {
+
+    let expr = equation
+
+    expr = expr.replace(/(\d+)!/g, "factorial($1)")
+
+    expr = expr
+      .replaceAll("π", "Math.PI")
+      .replaceAll("e", "Math.E")
+      .replaceAll("sin", "Math.sin")
+      .replaceAll("cos", "Math.cos")
+      .replaceAll("tan", "Math.tan")
+      .replaceAll("sqrt", "Math.sqrt")
+      .replaceAll("log10", "Math.log10")
+      .replaceAll("log", "Math.log")
+
+    let result = eval(expr)
+
+    equation = result.toString()
+
+    updateDisplay(equation)
+
+  } catch {
+    updateDisplay("Error")
+  }
+}
+
+function clearCalc() {
+  equation = ""
+  updateDisplay("0")
+}
+
+function backspace() {
+  equation = equation.slice(0, -1)
+  updateDisplay(equation || "0")
+}
+
+function negative() {
+  try {
+    equation = (-eval(equation)).toString()
+    updateDisplay(equation)
+  } catch {
+    updateDisplay("Error")
+  }
+}
+
+function percent() {
+  try {
+    equation = (eval(equation) / 100).toString()
+    updateDisplay(equation)
+  } catch {
+    updateDisplay("Error")
+  }
+}
+
+</script>
+
+</body>
+</html>
