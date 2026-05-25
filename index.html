@@ -44,6 +44,11 @@ button {
   font-size: 20px;
   color: white;
   background: #333333;
+  cursor: pointer;
+}
+
+button:hover {
+  filter: brightness(1.2);
 }
 
 .gray {
@@ -105,7 +110,7 @@ button {
 
 <button onclick="add('0')">0</button>
 <button onclick="add('00')">00</button>
-<button onclick="add('1e')">EXP</button>
+<button onclick="add('e+')">EXP</button>
 <button class="orange" onclick="calculate()">=</button>
 
 </div>
@@ -117,100 +122,277 @@ button {
 let equation = ""
 
 function updateDisplay(v) {
-  document.getElementById("result").innerHTML = v
+
+  document.getElementById("result").innerHTML = v || "0"
+
 }
 
 function add(v) {
+
   equation += v
+
   updateDisplay(equation)
+
 }
 
 function addFunc(f) {
+
   equation += f + "("
+
   updateDisplay(equation)
+
 }
 
-// ---------------- FACTORIAL ----------------
+function clearCalc() {
+
+  equation = ""
+
+  updateDisplay("0")
+
+}
+
+function backspace() {
+
+  equation = equation.slice(0, -1)
+
+  updateDisplay(equation)
+
+}
+
+function negative() {
+
+  try {
+
+    equation = `(-1*(${equation}))`
+
+    updateDisplay(equation)
+
+  }
+
+  catch {
+
+    updateDisplay("Error")
+
+  }
+
+}
+
+function percent() {
+
+  equation += "%"
+
+  updateDisplay(equation)
+
+}
+
 function factorial(n) {
+
+  n = Number(n)
+
   if (n < 0) return NaN
-  if (n === 0) return 1
-  let r = 1
-  for (let i = 2; i <= n; i++) r *= i
-  return r
+
+  if (n === 0 || n === 1) return 1
+
+  let result = 1
+
+  for (let i = 2; i <= n; i++) {
+
+    result *= i
+
+  }
+
+  return result
+
 }
 
-// ---------------- CALCULATE ----------------
+function applyPercent(expr) {
+
+  expr = expr.replace(
+
+    /(\d+(\.\d+)?)\+\(([^()]+)\)%/g,
+
+    (m, a, _, inside) => {
+
+      return `${a}+(${a}*((${inside})/100))`
+
+    }
+
+  )
+
+  expr = expr.replace(
+
+    /(\d+(\.\d+)?)-\(([^()]+)\)%/g,
+
+    (m, a, _, inside) => {
+
+      return `${a}-(${a}*((${inside})/100))`
+
+    }
+
+  )
+
+  expr = expr.replace(
+
+    /(\d+(\.\d+)?)\*\(([^()]+)\)%/g,
+
+    (m, a, _, inside) => {
+
+      return `${a}*((${inside})/100)`
+
+    }
+
+  )
+
+  expr = expr.replace(
+
+    /(\d+(\.\d+)?)\/\(([^()]+)\)%/g,
+
+    (m, a, _, inside) => {
+
+      return `${a}/((${inside})/100)`
+
+    }
+
+  )
+
+  expr = expr.replace(
+
+    /\(([^()]+)\)%/g,
+
+    (m, inside) => {
+
+      return `((${inside})/100)`
+
+    }
+
+  )
+
+  expr = expr.replace(
+
+    /(\d+(\.\d+)?)\+(\d+(\.\d+)?)%/g,
+
+    (m, a, _, b) => {
+
+      return Number(a) + (Number(a) * Number(b) / 100)
+
+    }
+
+  )
+
+  expr = expr.replace(
+
+    /(\d+(\.\d+)?)-(\d+(\.\d+)?)%/g,
+
+    (m, a, _, b) => {
+
+      return Number(a) - (Number(a) * Number(b) / 100)
+
+    }
+
+  )
+
+  expr = expr.replace(
+
+    /(\d+(\.\d+)?)\*(\d+(\.\d+)?)%/g,
+
+    (m, a, _, b) => {
+
+      return Number(a) * (Number(b) / 100)
+
+    }
+
+  )
+
+  expr = expr.replace(
+
+    /(\d+(\.\d+)?)\/(\d+(\.\d+)?)%/g,
+
+    (m, a, _, b) => {
+
+      return Number(a) / (Number(b) / 100)
+
+    }
+
+  )
+
+  return expr
+
+}
+
 function calculate() {
+
   try {
 
     let expr = equation
 
-    // factorial: supports (2+3)!
     while (expr.includes("!")) {
-      expr = expr.replace(/(\([^()]+\)|\d+)!/, match => {
-        let val = match.slice(0, -1)
-        return `factorial(${val})`
-      })
+
+      expr = expr.replace(
+
+        /(\([^()]+\)|\d+)!/,
+
+        m => `factorial(${m.slice(0, -1)})`
+
+      )
+
     }
 
-    // constants (safe word boundaries)
+    expr = applyPercent(expr)
+
     expr = expr
       .replace(/\bπ\b/g, "Math.PI")
       .replace(/\be\b/g, "Math.E")
 
-    // functions (TRIG in degrees)
     expr = expr
-      .replace(/sin\(([^)]+)\)/g, (_, x) => `Math.sin((${x}) * Math.PI / 180)`)
-      .replace(/cos\(([^)]+)\)/g, (_, x) => `Math.cos((${x}) * Math.PI / 180)`)
-      .replace(/tan\(([^)]+)\)/g, (_, x) => `Math.tan((${x}) * Math.PI / 180)`)
+      .replace(/sin\(([^)]+)\)/g,
+        (_, x) => `Math.sin((${x}) * Math.PI / 180)`
+      )
+
+    expr = expr
+      .replace(/cos\(([^)]+)\)/g,
+        (_, x) => `Math.cos((${x}) * Math.PI / 180)`
+      )
+
+    expr = expr
+      .replace(/tan\(([^)]+)\)/g,
+        (_, x) => `Math.tan((${x}) * Math.PI / 180)`
+      )
+
+    expr = expr
       .replace(/sqrt\(/g, "Math.sqrt(")
       .replace(/log10\(/g, "Math.log10(")
       .replace(/log\(/g, "Math.log(")
 
     let result = eval(expr)
 
+    if (!isFinite(result)) {
+
+      updateDisplay("Error")
+
+      equation = ""
+
+      return
+
+    }
+
     equation = result.toString()
+
     updateDisplay(equation)
 
-  } catch {
+  }
+
+  catch {
+
     updateDisplay("Error")
+
     equation = ""
+
   }
-}
 
-// ---------------- CLEAR ----------------
-function clearCalc() {
-  equation = ""
-  updateDisplay("0")
-}
-
-// ---------------- BACKSPACE ----------------
-function backspace() {
-  equation = equation.slice(0, -1)
-  updateDisplay(equation || "0")
-}
-
-// ---------------- NEGATIVE ----------------
-function negative() {
-  try {
-    equation = (-eval(equation)).toString()
-    updateDisplay(equation)
-  } catch {
-    updateDisplay("Error")
-  }
-}
-
-// ---------------- PERCENT ----------------
-function percent() {
-  try {
-    equation = (eval(equation) / 100).toString()
-    updateDisplay(equation)
-  } catch {
-    updateDisplay("Error")
-  }
 }
 
 </script>
 
 </body>
+
 </html>
