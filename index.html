@@ -105,7 +105,7 @@ button {
 
 <button onclick="add('0')">0</button>
 <button onclick="add('00')">00</button>
-<button onclick="add('1e+')">EXP</button>
+<button onclick="add('1e')">EXP</button>
 <button class="orange" onclick="calculate()">=</button>
 
 </div>
@@ -130,51 +130,67 @@ function addFunc(f) {
   updateDisplay(equation)
 }
 
+// ---------------- FACTORIAL ----------------
 function factorial(n) {
-  if (n <= 1) return 1
+  if (n < 0) return NaN
+  if (n === 0) return 1
   let r = 1
   for (let i = 2; i <= n; i++) r *= i
   return r
 }
 
+// ---------------- CALCULATE ----------------
 function calculate() {
   try {
 
     let expr = equation
 
-    expr = expr.replace(/(\d+)!/g, "factorial($1)")
+    // factorial: supports (2+3)!
+    while (expr.includes("!")) {
+      expr = expr.replace(/(\([^()]+\)|\d+)!/, match => {
+        let val = match.slice(0, -1)
+        return `factorial(${val})`
+      })
+    }
 
+    // constants (safe word boundaries)
     expr = expr
-      .replaceAll("π", "Math.PI")
-      .replaceAll("e", "Math.E")
-      .replaceAll("sin", "Math.sin")
-      .replaceAll("cos", "Math.cos")
-      .replaceAll("tan", "Math.tan")
-      .replaceAll("sqrt", "Math.sqrt")
-      .replaceAll("log10", "Math.log10")
-      .replaceAll("log", "Math.log")
+      .replace(/\bπ\b/g, "Math.PI")
+      .replace(/\be\b/g, "Math.E")
+
+    // functions (TRIG in degrees)
+    expr = expr
+      .replace(/sin\(([^)]+)\)/g, (_, x) => `Math.sin((${x}) * Math.PI / 180)`)
+      .replace(/cos\(([^)]+)\)/g, (_, x) => `Math.cos((${x}) * Math.PI / 180)`)
+      .replace(/tan\(([^)]+)\)/g, (_, x) => `Math.tan((${x}) * Math.PI / 180)`)
+      .replace(/sqrt\(/g, "Math.sqrt(")
+      .replace(/log10\(/g, "Math.log10(")
+      .replace(/log\(/g, "Math.log(")
 
     let result = eval(expr)
 
     equation = result.toString()
-
     updateDisplay(equation)
 
   } catch {
     updateDisplay("Error")
+    equation = ""
   }
 }
 
+// ---------------- CLEAR ----------------
 function clearCalc() {
   equation = ""
   updateDisplay("0")
 }
 
+// ---------------- BACKSPACE ----------------
 function backspace() {
   equation = equation.slice(0, -1)
   updateDisplay(equation || "0")
 }
 
+// ---------------- NEGATIVE ----------------
 function negative() {
   try {
     equation = (-eval(equation)).toString()
@@ -184,72 +200,14 @@ function negative() {
   }
 }
 
+// ---------------- PERCENT ----------------
 function percent() {
-
   try {
-
-    if (equation.includes("+")) {
-
-      let parts = equation.split("+")
-
-      let first = Number(parts[0])
-      let second = Number(parts[1])
-
-      equation = first + (first * second / 100)
-
-    }
-
-    else if (equation.includes("-")) {
-
-      let parts = equation.split("-")
-
-      let first = Number(parts[0])
-      let second = Number(parts[1])
-
-      equation = first - (first * second / 100)
-
-    }
-
-    else if (equation.includes("*")) {
-
-      let parts = equation.split("*")
-
-      let first = Number(parts[0])
-      let second = Number(parts[1])
-
-      equation = first * (second / 100)
-
-    }
-
-    else if (equation.includes("/")) {
-
-      let parts = equation.split("/")
-
-      let first = Number(parts[0])
-      let second = Number(parts[1])
-
-      equation = first / (second / 100)
-
-    }
-
-    else {
-
-      equation = Number(equation) / 100
-
-    }
-
-    equation = equation.toString()
-
-    document.getElementById("result").innerHTML = equation
-
+    equation = (eval(equation) / 100).toString()
+    updateDisplay(equation)
+  } catch {
+    updateDisplay("Error")
   }
-
-  catch {
-
-    document.getElementById("result").innerHTML = "Error"
-
-  }
-
 }
 
 </script>
