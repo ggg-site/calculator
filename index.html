@@ -246,8 +246,6 @@ onclick="toggleMode()"
 0
 </div>
 
-<!-- CURRENCY -->
-
 <div id="currencyPage">
 
 <div class="currencyRow">
@@ -300,8 +298,6 @@ onchange="convert()"
 
 </div>
 
-<!-- SCI -->
-
 <div class="scienceGrid">
 
 <button class="sciBtn" onclick="addFunc('sin')">
@@ -345,8 +341,6 @@ xʸ
 </button>
 
 </div>
-
-<!-- CALC -->
 
 <div class="grid">
 
@@ -442,26 +436,26 @@ let equation = ""
 
 let rates = {
 
-  USD: 1,
-  EUR: 0.92,
-  GBP: 0.79,
-  BDT: 117.2,
-  INR: 83.5,
-  JPY: 157.2,
-  CNY: 7.24,
-  CAD: 1.37,
-  AUD: 1.52,
-  CHF: 0.90,
-  SGD: 1.35,
-  HKD: 7.81,
-  AED: 3.67,
-  SAR: 3.75,
-  KRW: 1365,
-  RUB: 89.3,
-  BRL: 5.4,
-  MXN: 16.8,
-  THB: 36.7,
-  ZAR: 18.4
+  USD:1,
+  EUR:0.92,
+  GBP:0.79,
+  BDT:117.2,
+  INR:83.5,
+  JPY:157.2,
+  CNY:7.24,
+  CAD:1.37,
+  AUD:1.52,
+  CHF:0.90,
+  SGD:1.35,
+  HKD:7.81,
+  AED:3.67,
+  SAR:3.75,
+  KRW:1365,
+  RUB:89.3,
+  BRL:5.4,
+  MXN:16.8,
+  THB:36.7,
+  ZAR:18.4
 
 }
 
@@ -728,109 +722,27 @@ function calculate() {
       )
 
     expr = expr.replace(
-
-      /(\d+(\.\d+)?)\+(\d+(\.\d+)?)%/g,
-
-      (m, a, _, b) => {
-
-        return Number(a) +
-          (
-            Number(a) *
-            Number(b) / 100
-          )
-
-      }
-
-    )
-
-    expr = expr.replace(
-
-      /(\d+(\.\d+)?)-(\d+(\.\d+)?)%/g,
-
-      (m, a, _, b) => {
-
-        return Number(a) -
-          (
-            Number(a) *
-            Number(b) / 100
-          )
-
-      }
-
-    )
-
-    expr = expr.replace(
-
-      /(\d+(\.\d+)?)\*(\d+(\.\d+)?)%/g,
-
-      (m, a, _, b) => {
-
-        return Number(a) *
-          (
-            Number(b) / 100
-          )
-
-      }
-
-    )
-
-    expr = expr.replace(
-
-      /(\d+(\.\d+)?)\/(\d+(\.\d+)?)%/g,
-
-      (m, a, _, b) => {
-
-        return Number(a) /
-          (
-            Number(b) / 100
-          )
-
-      }
-
-    )
-
-    expr = expr.replace(
-
       /\(([^()]+)\)%/g,
-
-      (m, inside) => {
-
-        return `((${inside})/100)`
-
-      }
-
+      (m, inside) =>
+      `(${eval(inside)/100})`
     )
 
     expr = expr.replace(
-
-      /(\d+(\.\d+)?)\+\(\(([^()]+)\)\/100\)/g,
-
-      (m, a, _, inside) => {
-
-        return Number(a) +
-          (
-            Number(a) *
-            eval(inside) / 100
-          )
-
-      }
-
+      /(\d+(\.\d+)?)%/g,
+      (m, a) =>
+      Number(a)/100
     )
 
     expr = expr.replace(
+      /(\d+(\.\d+)?)\+(0?\.\d+)/g,
+      (m, a, _, b) =>
+      Number(a)+(Number(a)*Number(b))
+    )
 
-      /(\d+(\.\d+)?)-\(\(([^()]+)\)\/100\)/g,
-
-      (m, a, _, inside) => {
-
-        return Number(a) -
-          (
-            Number(a) *
-            eval(inside) / 100
-          )
-
-      }
-
+    expr = expr.replace(
+      /(\d+(\.\d+)?)-(0?\.\d+)/g,
+      (m, a, _, b) =>
+      Number(a)-(Number(a)*Number(b))
     )
 
     let result =
@@ -847,36 +759,16 @@ function calculate() {
 
     updateDisplay("Error")
 
+    equation = ""
+
   }
 
 }
 
 function buildMenus() {
 
-  let codes = [
-
-    "USD",
-    "EUR",
-    "GBP",
-    "BDT",
-    "INR",
-    "JPY",
-    "CNY",
-    "CAD",
-    "AUD",
-    "CHF",
-    "SGD",
-    "HKD",
-    "AED",
-    "SAR",
-    "KRW",
-    "RUB",
-    "BRL",
-    "MXN",
-    "THB",
-    "ZAR"
-
-  ]
+  let codes =
+    Object.keys(rates).sort()
 
   let c1 =
     document.getElementById("currency1")
@@ -893,35 +785,27 @@ function buildMenus() {
     i++
   ) {
 
-    let code =
-      codes[i]
+    let code = codes[i]
 
     let option1 =
       document.createElement("option")
 
-    option1.value =
-      code
-
-    option1.textContent =
-      code
+    option1.value = code
+    option1.textContent = code
 
     c1.appendChild(option1)
 
     let option2 =
       document.createElement("option")
 
-    option2.value =
-      code
-
-    option2.textContent =
-      code
+    option2.value = code
+    option2.textContent = code
 
     c2.appendChild(option2)
 
   }
 
   c1.value = "USD"
-
   c2.value = "BDT"
 
 }
